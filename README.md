@@ -242,3 +242,4 @@ erDiagram
 * **Deva Nanda (DevaNandaSManoj)** — Core Architecture & Database design
 * **Amritha Sanjiv (Amritha)** — ML Classifiers, Geofencing, and Front-end Themes
 * **Smitha Vadakumcheril (Smitha)** — Leave Workflows & Automated SendGrid pipelines
+* **Alsa Binu** — Collaborative development & validation
