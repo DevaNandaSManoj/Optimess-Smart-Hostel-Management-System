@@ -29,10 +29,14 @@ class NoCacheMiddleware:
     def __call__(self, request):
         # ── Guard: bounce authenticated users away from login ──────────
         login_url = reverse('login')
-        if request.path == login_url and request.user.is_authenticated:
-            dashboard = ROLE_DASHBOARD.get(getattr(request.user, 'role', ''))
-            if dashboard:
-                return redirect(dashboard)
+        if request.path == login_url:
+            try:
+                if request.user.is_authenticated:
+                    dashboard = ROLE_DASHBOARD.get(getattr(request.user, 'role', ''))
+                    if dashboard:
+                        return redirect(dashboard)
+            except Exception:
+                pass
 
         response = self.get_response(request)
 
