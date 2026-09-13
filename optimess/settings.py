@@ -34,11 +34,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv("SECRET_KEY")
+SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-prod-key-optimess-2026")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG") == "True"
 
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "*").split(",")
+ALLOWED_HOSTS = ["*"]
 CSRF_TRUSTED_ORIGINS = [
     origin.strip() for origin in os.getenv(
         "CSRF_TRUSTED_ORIGINS",
@@ -108,7 +108,7 @@ WSGI_APPLICATION = 'optimess.wsgi.application'
 if dj_database_url and os.getenv("DATABASE_URL"):
     DATABASES = {
         'default': dj_database_url.config(
-            conn_max_age=600,
+            conn_max_age=0,
             ssl_require=True,
         )
     }
