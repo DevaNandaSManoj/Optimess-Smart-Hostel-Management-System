@@ -389,23 +389,26 @@
                     </tr>
                 </tbody>
             </table>
-
-            {% if leave.status == 'approved' %}
-                <form method="post" action="{% url 'modify_leave' leave.id %}" style="margin-top: 16px; position: relative; z-index: 1;">
-                    {% csrf_token %}
-                    <div class="form-group" style="display:flex; align-items:center; gap:10px; margin-bottom:0;">
-                        <label style="white-space:nowrap; margin-bottom:0; font-size:13px;">Change End Date:</label>
-                        <input type="date" name="new_end_date" required style="flex:1;">
-                        <button type="submit" class="submit-btn" style="width:auto; padding:9px 16px; white-space:nowrap;">Update</button>
-                    </div>
-                </form>
-            {% endif %}
-
         {% else %}
             <div class="empty-state">
                 <i class="fa-solid fa-calendar-xmark"></i>
                 <p>No leave requests yet.</p>
             </div>
+        {% endif %}
+
+        {% if approved_leave %}
+            <form method="post" action="{% url 'modify_leave' approved_leave.id %}" style="margin-top: 16px; position: relative; z-index: 1;">
+                {% csrf_token %}
+                <div style="margin-bottom: 8px; font-size: 12px; color: var(--text2); position: relative; z-index: 1;">
+                    <i class="fa-solid fa-circle-info" style="color: #38bdf8;"></i>
+                    Active approved leave: <strong style="color: var(--text);">{{ approved_leave.from_date|date:"d-m-Y" }} → {{ approved_leave.to_date|date:"d-m-Y" }}</strong>
+                </div>
+                <div class="form-group" style="display:flex; align-items:center; gap:10px; margin-bottom:0;">
+                    <label style="white-space:nowrap; margin-bottom:0; font-size:13px;">Shorten / Extend End Date:</label>
+                    <input type="date" name="new_end_date" required style="flex:1;" value="{{ approved_leave.to_date|date:'Y-m-d' }}">
+                    <button type="submit" class="submit-btn" style="width:auto; padding:9px 16px; white-space:nowrap;">Update</button>
+                </div>
+            </form>
         {% endif %}
 
     </div>
