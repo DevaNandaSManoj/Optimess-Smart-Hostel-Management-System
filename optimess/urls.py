@@ -19,11 +19,23 @@ from django.urls import path, include
 from django.contrib.auth.views import LogoutView
 from django.conf import settings
 from django.conf.urls.static import static
+from django.core.management import call_command
+from django.http import HttpResponse
+
+
+def setup_db_view(request):
+    try:
+        call_command('migrate', interactive=False)
+        call_command('loaddata', 'datadump.json')
+        return HttpResponse("✅ Database Migrated and 1,464 Records Loaded Successfully!")
+    except Exception as e:
+        return HttpResponse(f"❌ Setup Exception: {str(e)}", status=500)
 
 
 urlpatterns = [
+    path('setup-db/', setup_db_view, name='setup_db'),
     path('admin/', admin.site.urls),
-     path('logout/', LogoutView.as_view(next_page='login'), name='logout'),
+    path('logout/', LogoutView.as_view(next_page='login'), name='logout'),
     path('', include('accounts.urls')),
     path('', include('food.urls')),
     path('', include('leave.urls')),

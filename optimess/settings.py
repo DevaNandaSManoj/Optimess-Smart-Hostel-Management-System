@@ -42,7 +42,7 @@ ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "*").split(",")
 CSRF_TRUSTED_ORIGINS = [
     origin.strip() for origin in os.getenv(
         "CSRF_TRUSTED_ORIGINS",
-        "https://mini-project-ji62.onrender.com"
+        "https://*.vercel.app,https://mini-project-ji62.onrender.com"
     ).split(",") if origin.strip()
 ]
 
@@ -109,6 +109,7 @@ if dj_database_url and os.getenv("DATABASE_URL"):
     DATABASES = {
         'default': dj_database_url.config(
             conn_max_age=600,
+            ssl_require=True,
         )
     }
 else:
