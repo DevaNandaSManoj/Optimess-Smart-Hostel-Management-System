@@ -30,6 +30,15 @@ def apply_leave(request):
         existing_leave.seen_by_student = True
         existing_leave.save()
 
+    # ✅ Separately fetch active approved leave for shorten/extend form
+    # (existing_leave ordered by -applied_on might surface a pending/rejected leave
+    #  even when there's a currently active approved leave for the student)
+    active_approved_leave = LeaveRequest.objects.filter(
+        student=student,
+        status="approved",
+        to_date__gte=date.today()
+    ).order_by('from_date').first()
+
     # 🚫 Check if student already has an active leave
     active_leave = LeaveRequest.objects.filter(
         student=student,
@@ -40,9 +49,10 @@ def apply_leave(request):
     if request.method == "POST":
         if active_leave:
             return render(request, 'student/leave.html', {
-            'error': 'You already have an active leave. Cancel or wait until it ends.',
-            'leave': existing_leave
-        })
+                'error': 'You already have an active leave. Cancel or wait until it ends.',
+                'leave': existing_leave,
+                'approved_leave': active_approved_leave,
+            })
         from_date = request.POST.get('from_date')
         to_date = request.POST.get('to_date')
         reason = request.POST.get('reason')
@@ -51,21 +61,24 @@ def apply_leave(request):
         if not from_date or not to_date or not reason:
             return render(request, 'student/leave.html', {
                 'error': 'All fields are required.',
-                'leave': existing_leave
+                'leave': existing_leave,
+                'approved_leave': active_approved_leave,
             })
 
         # 🚨 Reason must not be empty or spaces
         if not reason.strip():
             return render(request, 'student/leave.html', {
                 'error': 'Reason is required.',
-                'leave': existing_leave
+                'leave': existing_leave,
+                'approved_leave': active_approved_leave,
             })
 
         # 🚨 Reason must not be only numbers
         if reason.strip().isdigit():
             return render(request, 'student/leave.html', {
                 'error': 'Reason must be valid text, not just numbers.',
-                'leave': existing_leave
+                'leave': existing_leave,
+                'approved_leave': active_approved_leave,
             })
 
         try:
@@ -74,7 +87,8 @@ def apply_leave(request):
         except ValueError:
             return render(request, 'student/leave.html', {
                 'error': 'Invalid date format.',
-                'leave': existing_leave
+                'leave': existing_leave,
+                'approved_leave': active_approved_leave,
             })
 
     
@@ -86,19 +100,22 @@ def apply_leave(request):
         if from_date_obj < date.today():
             return render(request, 'student/leave.html', {
                 'error': 'From date cannot be in the past.',
-                'leave': existing_leave
+                'leave': existing_leave,
+                'approved_leave': active_approved_leave,
             })
 
         if from_date_obj > to_date_obj:
             return render(request, 'student/leave.html', {
                 'error': 'From date cannot be after To date',
-                'leave': existing_leave
+                'leave': existing_leave,
+                'approved_leave': active_approved_leave,
             })
 
         if to_date_obj < date.today():
             return render(request, 'student/leave.html', {
                 'error': 'Leave dates cannot be in the past',
-                'leave': existing_leave
+                'leave': existing_leave,
+                'approved_leave': active_approved_leave,
             })
 
 
@@ -113,7 +130,8 @@ def apply_leave(request):
         if overlapping_leave:
             return render(request, 'student/leave.html', {
                 'error': 'This leave overlaps with an existing leave request.',
-                'leave': existing_leave
+                'leave': existing_leave,
+                'approved_leave': active_approved_leave,
             })
 
         # ✅ Create leave
@@ -127,7 +145,8 @@ def apply_leave(request):
         return redirect('apply_leave')
 
     return render(request, 'student/leave.html', {
-        'leave': existing_leave
+        'leave': existing_leave,
+        'approved_leave': active_approved_leave,
     })
  
 
